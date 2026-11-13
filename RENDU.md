@@ -41,20 +41,23 @@
 ## Exercice 5 — Scaling & mises à jour
 
 9. Sur quels nœuds se trouvent vos 3 réplicas ? Collez la sortie de `kubectl get pods -l app=site -o wide`.
-   ```
+   ```Les 3 pods sont répartis sur les 3 nœuds du cluster (le control-plane et les deux workers). C’est le scheduler Kubernetes qui décide du placement.
 
-   ```
+   ```NAME                    READY   STATUS    NODE
+site-5cc664db9c-6mbpl   1/1     Running   k3d-lab-server-0
+site-5cc664db9c-6zjg8   1/1     Running   k3d-lab-agent-0
+site-5cc664db9c-bnchj   1/1     Running   k3d-lab-agent-1
 10. Avec l'image `nginx:9.99`, quel statut avait le pod ? Quelle commande vous a donné la cause ?
-    >
+    Le nouveau pod site-fc576997-xw4cp est en ImagePullBackOff (ErrImagePull). kubectl describe pod montre dans Events que l’image nginx:9.99 est introuvable (tag inexistant). Pendant ce temps, le site est resté en ligne : le rolling update garde les anciens pods tant que le nouveau n’est pas Ready, et le Service n’envoie du trafic qu’aux pods prêts.
 11. Pendant la panne, le site restait-il accessible ? Pourquoi ?
-    >
+    kubectl rollout undo deploy/site a rétabli la révision précédente (nginx:1.28) : le pod cassé a été supprimé et les 3 pods sains sont Running. kubectl set image est une commande impérative : le YAML ne reflétait plus ce qui tournait. Après le undo, kubectl diff -f k8s/site/ n’affiche rien, donc le cluster et les fichiers sont de nouveau alignés. En entreprise, le dépôt Git fait foi (principe du GitOps).
 
 ## Exercice 6 — Portainer & Mario
 
 12. URL publique de votre Mario :
-    >
+    https://vigilant-space-sniffle-976qxjpw79x73749p-8585.app.github.dev/
 13. Retrouvez le Deployment `mario` en ligne de commande. Portainer et `kubectl` parlent-ils au même composant ? Lequel ?
-    >
+    Non, pas sur le fond : c’est un Deployment Kubernetes standard, avec les mêmes champs (replicas, selector, template, containers) que web et site. Portainer envoie simplement le manifeste YAML à l’API Kubernetes, comme kubectl apply. Il ajoute seulement quelques annotations et labels dans les métadonnées. La différence de méthode est que mario est créé de façon déclarative (à partir d’un manifeste) alors que web l’a été en impératif avec kubectl create. Portainer n’est donc qu’une interface graphique au-dessus de la même API.
 
 ## Bonus (facultatif)
 
