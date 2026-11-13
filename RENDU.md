@@ -57,7 +57,7 @@ site-5cc664db9c-bnchj   1/1     Running   k3d-lab-agent-1
 12. URL publique de votre Mario :
     https://vigilant-space-sniffle-976qxjpw79x73749p-8585.app.github.dev/
 13. Retrouvez le Deployment `mario` en ligne de commande. Portainer et `kubectl` parlent-ils au même composant ? Lequel ?
-    Non, pas sur le fond : c’est un Deployment Kubernetes standard, avec les mêmes champs (replicas, selector, template, containers) que web et site. Portainer envoie simplement le manifeste YAML à l’API Kubernetes, comme kubectl apply. Il ajoute seulement quelques annotations et labels dans les métadonnées. La différence de méthode est que mario est créé de façon déclarative (à partir d’un manifeste) alors que web l’a été en impératif avec kubectl create. Portainer n’est donc qu’une interface graphique au-dessus de la même API.
+    Oui, le Deployment créé par Portainer est différent de ceux créés en ligne de commande, mais seulement dans ses métadonnées. Portainer ajoute ses propres annotations et labels (par exemple io.portainer.kubernetes.application.*), que kubectl create deployment ne met pas. Il ajoute aussi l’annotation kubectl.kubernetes.io/last-applied-configuration, car il applique un manifeste de façon déclarative, alors que web a été créé en impératif. Sur le fond, c’est le même objet Kubernetes (replicas, selector, template, containers) : Portainer envoie simplement le manifeste à l’API Kubernetes, comme kubectl apply.
 
 ## Bonus (facultatif)
 
